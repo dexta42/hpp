@@ -87,7 +87,7 @@ public class QueryProcessorMeasure {
 			sbTime.append("Query " + pid + " runtime: " + msDiff + "ms\n");
 			long throughput = (records * 1_000_000) / nanoDiff;
 			sbTime.append("Query " + pid + " throughput: " + throughput
-					+ " events/second\n");
+					+ "k events/second\n");
 		}
 		try {
 			FileUtils.writeStringToFile(new File("result/result.txt"),
