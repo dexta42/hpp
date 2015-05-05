@@ -1,4 +1,4 @@
-package fr.tse.fi2.hpp.labs.main;
+package fr.tse.fi2.hpp.labs.queries.impl.lab4;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,21 +10,11 @@ import org.slf4j.LoggerFactory;
 
 import fr.tse.fi2.hpp.labs.beans.measure.QueryProcessorMeasure;
 import fr.tse.fi2.hpp.labs.dispatcher.StreamingDispatcher;
+import fr.tse.fi2.hpp.labs.main.MainStreaming;
 import fr.tse.fi2.hpp.labs.queries.AbstractQueryProcessor;
-import fr.tse.fi2.hpp.labs.queries.impl.SimpleQuerySumEvent;
-import fr.tse.fi2.hpp.labs.queries.impl.lab4.RouteMembershipProcessor;
 
-/**
- * Main class of the program. Register your new queries here
- * 
- * Design choice: no thread pool to show the students explicit
- * {@link CountDownLatch} based synchronization.
- * 
- * @author Julien
- * 
- */
-public class MainStreaming {
-
+@State(Scope.Thread)
+public class Benchmark {
 	final static Logger logger = LoggerFactory.getLogger(MainStreaming.class);
 
 	/**
@@ -74,16 +64,13 @@ public class MainStreaming {
 		// Output measure and ratio per query processor
 		measure.setProcessedRecords(dispatch.getRecords());
 		measure.outputMeasure();
-		/*float dlon =  (float) -73.98353;
-		float dlat =  (float) 40.749985;
-		float alon =  (float) -73.99183;
-		float alat =  (float) 40.74913;
-		String lic =  "441D5B00E6EC31C7951D9E5E81CA6A57";*/
+		
 		float dlon =  (float) -73.98353;
 		float dlat =  (float) 40.749985;
 		float alon =  (float) -73.99183;
 		float alat =  (float) 40.74913;
-		String lic =  "tautau";
+		String lic =  "441D5B00E6EC31C7951D9E5E81CA6A57";
+		
 		int ligne = RMP.CheckRoute(dlon, dlat, alon, alat, lic);
 		//System.out.println(ligne);
 		if(ligne!=-1){
@@ -93,7 +80,7 @@ public class MainStreaming {
 		else{
 			System.out.println("Try again ...");
 		}
-
-	}
+		
+		
 
 }
