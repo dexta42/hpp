@@ -13,8 +13,7 @@ import fr.tse.fi2.hpp.labs.beans.measure.QueryProcessorMeasure;
 import fr.tse.fi2.hpp.labs.dispatcher.StreamingDispatcher;
 import fr.tse.fi2.hpp.labs.queries.AbstractQueryProcessor;
 import fr.tse.fi2.hpp.labs.queries.impl.SimpleQuerySumEvent;
-import fr.tse.fi2.hpp.labs.queries.impl.lab4.RouteMembershipProcessor;
-import fr.tse.fi2.hpp.labs.queries.impl.lab5.RouteMembershipProcessor2;
+import fr.tse.fi2.hpp.labs.queries.impl.lab5b.RouteMembershipProcessor;
 
 /**
  * Main class of the program. Register your new queries here
@@ -43,7 +42,7 @@ public class MainStreaming {
 		// Query processors
 		List<AbstractQueryProcessor> processors = new ArrayList<>();
 		// Add you query processor here
-		 RouteMembershipProcessor2 RMP = new  RouteMembershipProcessor2(measure);
+		 RouteMembershipProcessor RMP = new  RouteMembershipProcessor(measure);
 		
 		processors.add(RMP);
 		// Register query processors
@@ -78,7 +77,7 @@ public class MainStreaming {
 		measure.outputMeasure();
 		DebsRecord recordTestFaux = new DebsRecord("", "", 4, 4, 4, 4, 4, 4, 4, 4, "", 4, 4, 4, 4, 4, 4, false);
 		
-		System.out.println(RMP.CheckRoute(recordTestFaux));
+		//System.out.println(RMP.CheckRoute(recordTestFaux));
 
 	}
 
