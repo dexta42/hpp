@@ -8,11 +8,13 @@ import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.tse.fi2.hpp.labs.beans.DebsRecord;
 import fr.tse.fi2.hpp.labs.beans.measure.QueryProcessorMeasure;
 import fr.tse.fi2.hpp.labs.dispatcher.StreamingDispatcher;
 import fr.tse.fi2.hpp.labs.queries.AbstractQueryProcessor;
 import fr.tse.fi2.hpp.labs.queries.impl.SimpleQuerySumEvent;
 import fr.tse.fi2.hpp.labs.queries.impl.lab4.RouteMembershipProcessor;
+import fr.tse.fi2.hpp.labs.queries.impl.lab5.RouteMembershipProcessor2;
 
 /**
  * Main class of the program. Register your new queries here
@@ -36,12 +38,12 @@ public class MainStreaming {
 		QueryProcessorMeasure measure = new QueryProcessorMeasure();
 		// Init dispatcher
 		StreamingDispatcher dispatch = new StreamingDispatcher(
-				"src/main/resources/data/sorted_data.csv");
+				"src/main/resources/data/1000Records.csv");
 
 		// Query processors
 		List<AbstractQueryProcessor> processors = new ArrayList<>();
 		// Add you query processor here
-		 RouteMembershipProcessor RMP = new  RouteMembershipProcessor(measure);
+		 RouteMembershipProcessor2 RMP = new  RouteMembershipProcessor2(measure);
 		
 		processors.add(RMP);
 		// Register query processors
@@ -74,25 +76,9 @@ public class MainStreaming {
 		// Output measure and ratio per query processor
 		measure.setProcessedRecords(dispatch.getRecords());
 		measure.outputMeasure();
-		/*float dlon =  (float) -73.98353;
-		float dlat =  (float) 40.749985;
-		float alon =  (float) -73.99183;
-		float alat =  (float) 40.74913;
-		String lic =  "441D5B00E6EC31C7951D9E5E81CA6A57";*/
-		float dlon =  (float) -73.98353;
-		float dlat =  (float) 40.749985;
-		float alon =  (float) -73.99183;
-		float alat =  (float) 40.74913;
-		String lic =  "tautau";
-		int ligne = RMP.CheckRoute(dlon, dlat, alon, alat, lic);
-		//System.out.println(ligne);
-		if(ligne!=-1){
-			ligne+=1;
-			System.out.println("Found it at : "+ ligne );
-		}
-		else{
-			System.out.println("Try again ...");
-		}
+		DebsRecord recordTestFaux = new DebsRecord("", "", 4, 4, 4, 4, 4, 4, 4, 4, "", 4, 4, 4, 4, 4, 4, false);
+		
+		System.out.println(RMP.CheckRoute(recordTestFaux));
 
 	}
 
