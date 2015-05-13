@@ -31,12 +31,15 @@ public class MergeSort {
 			else{
 				tab[i]=séquence[i];
 			}
+			tab [i+1]= element;
 		}
 		return tab;
 		
 	}
 	
 	public static int[] merge(int [] tab1, int [] tab2 ){
+	
+		//int[] result =new int[tab1.length+tab2.length];
 		if(tab1.length==0){
 			return tab2;
 		}
@@ -53,24 +56,35 @@ public class MergeSort {
 		
 	}
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		int[] tab = new int[5] ;
-		
-		int[] tab2 = new int[5] ;
-		Random rand = new Random();
-		
-		for(int i =0; i<5;i++){
-			
-			tab[i]= rand.nextInt(101);
-			tab2[i]= rand.nextInt(101);
-			
+	public static int[] sort(int[] tab){
+		if(tab.length==1||tab.length==0){
+			return tab;
 		}
+		else{
+			int[] sup=new int[tab.length-tab.length/2];
+			int [] inf= new int[tab.length/2];
+			for(int i=0;i<tab.length/2;i++){
+				inf[i]=tab[i];
+			}
+			int j=0;
+			for(int i=(tab.length/2);i<tab.length;i++){
+				sup[j]=tab[i];
+				j++;
+				
+			}
+			
+			return merge(sort(inf),sort(sup));
+		}
+	}
+	
+	public static void main(String[] args) {
+		int[] tab = {8,5,3,2,1};
 		
+	
 		System.out.println(Arrays.toString(tab));
-		System.out.println(Arrays.toString(tab2));
+		//sort(tab);
+		System.out.println(Arrays.toString(sort(tab)));
 		
-		System.out.println(Arrays.toString(MergeSort.merge(tab, tab2)));
 		 
 		 
 			
