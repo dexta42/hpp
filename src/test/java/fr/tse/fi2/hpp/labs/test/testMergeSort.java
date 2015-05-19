@@ -1,3 +1,4 @@
+package fr.tse.fi2.hpp.labs.test;
 
 import static org.junit.Assert.*;
 
@@ -16,8 +17,8 @@ public class testMergeSort {
 	@Test
 	public void test() {
 		
-		int[] tab = new int[10000];
-		int[] tab2 = new int[10000];
+		int[] tab = new int[100000];
+		int[] tab2 = new int[100000];
 		
 		int taille = 10000;
 		Random rand = new Random();
