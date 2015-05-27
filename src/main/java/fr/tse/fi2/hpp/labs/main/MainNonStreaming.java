@@ -14,6 +14,7 @@ import fr.tse.fi2.hpp.labs.queries.AbstractQueryProcessor;
 import fr.tse.fi2.hpp.labs.queries.impl.IncrementalAverage;
 import fr.tse.fi2.hpp.labs.queries.impl.NaiveAverage;
 import fr.tse.fi2.hpp.labs.queries.impl.SimpleQuerySumEvent;
+import fr.tse.fi2.hpp.labs.queries.impl.debs.query1.NaiveImplement;
 import fr.tse.fi2.hpp.labs.queries.impl.lab1.SumQuery;
 
 /**
@@ -39,12 +40,13 @@ public class MainNonStreaming {
 		QueryProcessorMeasure measure = new QueryProcessorMeasure();
 		// Init dispatcher and load everything
 		LoadFirstDispatcher dispatch = new LoadFirstDispatcher(
-				"src/main/resources/data/100k.csv");
+				"src/main/resources/data/1000Records.csv");
 		logger.info("Finished parsing");
 		// Query processors
 		List<AbstractQueryProcessor> processors = new ArrayList<>();
 		// Add you query processor here
-		processors.add(new IncrementalAverage(measure));
+		NaiveImplement RMP = new  NaiveImplement(measure);
+		processors.add(RMP);
 		// Register query processors
 		for (AbstractQueryProcessor queryProcessor : processors) {
 			dispatch.registerQueryProcessor(queryProcessor);
