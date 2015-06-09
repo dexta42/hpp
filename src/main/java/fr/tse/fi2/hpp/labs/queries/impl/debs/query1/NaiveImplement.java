@@ -1,10 +1,15 @@
 package fr.tse.fi2.hpp.labs.queries.impl.debs.query1;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.TreeMap;
 
 import fr.tse.fi2.hpp.labs.beans.DebsRecord;
@@ -17,7 +22,7 @@ public class NaiveImplement extends AbstractQueryProcessor {
 
 	private int nb = 0;
 	private float sum = 0;
-	private Date currentTime = new Date();;
+	private Date currentTime = new Date();
 	private ArrayList<DebsRecord> tabrec =  new ArrayList<DebsRecord>();//a faire en linkedList
 
 	public NaiveImplement(QueryProcessorMeasure measure) {
@@ -77,11 +82,12 @@ public class NaiveImplement extends AbstractQueryProcessor {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void process(DebsRecord record) {
+		long start = System.currentTimeMillis();
 		currentTime.setTime(record.getDropoff_datetime());
-		HashMap<Route,Integer> tabRoutes = new HashMap<Route,Integer>();
+		LinkedHashMap<Route,Integer> tabRoutes = new LinkedHashMap<Route,Integer>();
 		
 		for(int i=0;i<tabrec.size();i++){
-			if ((currentTime.getTime() - tabrec.get(i).getDropoff_datetime()) >900000){
+			if ((currentTime.getTime() - tabrec.get(i).getDropoff_datetime()) >1800000){
 				tabrec.remove(i);
 				
 			}
@@ -126,36 +132,80 @@ public class NaiveImplement extends AbstractQueryProcessor {
 		
 		System.out.println("END");
 	*/  
-		
+		LinkedHashMap <Route,Integer> reverseRoutes = new LinkedHashMap <Route,Integer>();
 		Iterator<Route> keySetIterator = tabRoutes.keySet().iterator();
-		LinkedHashMap <Route,Integer> sortedRoutes = new LinkedHashMap <Route,Integer>();
-		
 		while(!tabRoutes.isEmpty()){
+			
 			keySetIterator = tabRoutes.keySet().iterator();
-			Route rmax = keySetIterator.next();
-			Integer  nb=-1;
+			Route lastr = null;
 			while(keySetIterator.hasNext()){
 				Route key = keySetIterator.next();
-				if(tabRoutes.get(key)>tabRoutes.get(rmax)){
+				lastr = key;
+				
+			}
+			reverseRoutes.put(lastr, tabRoutes.get(lastr));
+			tabRoutes.remove(lastr);
+			System.out.println("Rwoute :  " + lastr.getPickup().getX()+" "+lastr.getPickup().getY()+" to "+lastr.getDropoff().getX()+" "+lastr.getDropoff().getY() + " nb : " + reverseRoutes.get(lastr));
+			
+		}
+		
+		
+		Iterator<Route> keySetIterator2 = reverseRoutes.keySet().iterator();
+		LinkedHashMap <Route,Integer> sortedRoutes = new LinkedHashMap <Route,Integer>();
+		//Map<Route,Integer> sortedRoutes  = new TreeMap<Route,Integer>(Collections.reverseOrder());
+		while(!reverseRoutes.isEmpty()){
+			keySetIterator2 = reverseRoutes.keySet().iterator();
+			Route rmax = keySetIterator2.next();
+			Integer  nb=-1;
+			while(keySetIterator2.hasNext()){
+				Route key = keySetIterator2.next();
+				if(reverseRoutes.get(key)>reverseRoutes.get(rmax)){
 					rmax = key;
 				}
 			}
 			//System.out.println("Route :  " + rmax.getPickup().getX()+" "+rmax.getPickup().getY()+" to "+rmax.getDropoff().getX()+" "+rmax.getDropoff().getY() + " nb : " + tabRoutes.get(nb));
-			sortedRoutes.put(rmax, tabRoutes.get(rmax));
-			tabRoutes.remove(rmax);
+			sortedRoutes.put(rmax, reverseRoutes.get(rmax));
+			reverseRoutes.remove(rmax);
 		}
 		
-		Iterator<Route> keySetIterator2 = sortedRoutes.keySet().iterator();
+		Iterator<Route> keySetIterator3 = sortedRoutes.keySet().iterator();
 		
 		
 		System.out.println("Start");
-		while(keySetIterator2.hasNext()){
+		while(keySetIterator3.hasNext()){
 			
-			 Route key = keySetIterator2.next();
+			 Route key = keySetIterator3.next();
 			System.out.println("Route :  " + key.getPickup().getX()+" "+key.getPickup().getY()+" to "+key.getDropoff().getX()+" "+key.getDropoff().getY() + " nb : " + sortedRoutes.get(key));
 		}
 		
 		System.out.println("END");
+		
+		
+		long stop = System.currentTimeMillis();
+		
+		long pickup = currentTime.getTime() - (30*60*1000);
+		Date pickupTime = new Date();
+		pickupTime.setTime(pickup);
+		String list = "";
+		NumberFormat formatter = new DecimalFormat("00"); 
+		
+		writeLine((pickupTime.getYear()+1900) + "-" + formatter.format((pickupTime.getMonth()+1)) + "-" + formatter.format(pickupTime.getDate()) + " " + formatter.format(pickupTime.getHours()) + ":" + formatter.format(pickupTime.getMinutes()) + ":" + formatter.format(pickupTime.getSeconds()) + " , " + (currentTime.getYear()+1900) + "-" + formatter.format((currentTime.getMonth()+1)) + "-" + formatter.format(currentTime.getDate()) + " " + formatter.format(currentTime.getHours()) + ":" + formatter.format(currentTime.getMinutes()) + ":" + formatter.format(currentTime.getSeconds()));
+		keySetIterator3 = sortedRoutes.keySet().iterator();
+		for(int i=0; i<10; i++)
+		{
+			if(keySetIterator3.hasNext())
+			{
+				Route key = keySetIterator3.next();
+				list = list.concat(key.getPickup().getX() + " " + key.getPickup().getY() + " , " + key.getDropoff().getX() + " " + key.getDropoff().getY() + " , ");
+			}
+			else
+			{
+				list = list.concat("NULL , ");
+			}
+		}
+		list = list.substring(0, list.length()-2);
+		writeLine(list);
+		writeLine("Delay : " + (stop-start) + "\n");
 		
 		
 		
