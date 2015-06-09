@@ -14,6 +14,7 @@ import fr.tse.fi2.hpp.labs.dispatcher.StreamingDispatcher;
 import fr.tse.fi2.hpp.labs.queries.AbstractQueryProcessor;
 import fr.tse.fi2.hpp.labs.queries.impl.SimpleQuerySumEvent;
 import fr.tse.fi2.hpp.labs.queries.impl.debs.query1.NaiveImplement;
+import fr.tse.fi2.hpp.labs.queries.impl.debs.query2.NaiveImplement2;
 import fr.tse.fi2.hpp.labs.queries.impl.lab5b.RouteMembershipProcessor;
 
 /**
@@ -43,7 +44,7 @@ public class MainStreaming {
 		// Query processors
 		List<AbstractQueryProcessor> processors = new ArrayList<>();
 		// Add you query processor here
-		NaiveImplement RMP = new  NaiveImplement(measure);
+		NaiveImplement2 RMP = new  NaiveImplement2(measure);
 		
 		processors.add(RMP);
 		// Register query processors
