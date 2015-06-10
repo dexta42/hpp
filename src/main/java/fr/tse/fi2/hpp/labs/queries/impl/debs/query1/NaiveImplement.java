@@ -19,7 +19,8 @@ import fr.tse.fi2.hpp.labs.beans.measure.QueryProcessorMeasure;
 import fr.tse.fi2.hpp.labs.queries.AbstractQueryProcessor;
 
 public class NaiveImplement extends AbstractQueryProcessor {
-
+	
+	public static String lastLine;
 	private int nb = 0;
 	private float sum = 0;
 	private Date currentTime = new Date();
@@ -30,6 +31,9 @@ public class NaiveImplement extends AbstractQueryProcessor {
 		super(measure);
 	}
 	
+	public static String getLastLine() {
+		return lastLine;
+	}
 	
 	private int cellX(float x) {
 
@@ -195,7 +199,7 @@ public class NaiveImplement extends AbstractQueryProcessor {
 			if(keySetIterator3.hasNext())
 			{
 				Route key = keySetIterator3.next();
-				list = list.concat(key.getPickup().getX() + " " + key.getPickup().getY() + " , " + key.getDropoff().getX() + " " + key.getDropoff().getY() + " , ");
+				list = list.concat(key.getPickup().getX() + "." + key.getPickup().getY() + " , " + key.getDropoff().getX() + "." + key.getDropoff().getY() + " , ");
 			}
 			else
 			{
@@ -206,7 +210,9 @@ public class NaiveImplement extends AbstractQueryProcessor {
 		writeLine(list);
 		writeLine("Delay : " + (stop-start) + " ms\n");
 		
-		
+		//list = list.replace(" ", "");
+		//lastLine = (pickupTime.getYear()+1900) + "-" + formatter.format((pickupTime.getMonth()+1)) + "-" + formatter.format(pickupTime.getDate()) + " " + formatter.format(pickupTime.getHours()) + ":" + formatter.format(pickupTime.getMinutes()) + ":" + formatter.format(pickupTime.getSeconds()) + "," + (currentTime.getYear()+1900) + "-" + formatter.format((currentTime.getMonth()+1)) + "-" + formatter.format(currentTime.getDate()) + " " + formatter.format(currentTime.getHours()) + ":" + formatter.format(currentTime.getMinutes()) + ":" + formatter.format(currentTime.getSeconds()) + list;
+		lastLine = list.replace(" ", "");
 		
 	
 	}
