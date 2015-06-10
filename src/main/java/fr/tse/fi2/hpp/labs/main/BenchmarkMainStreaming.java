@@ -23,6 +23,7 @@ import fr.tse.fi2.hpp.labs.beans.DebsRecord;
 import fr.tse.fi2.hpp.labs.beans.measure.QueryProcessorMeasure;
 import fr.tse.fi2.hpp.labs.dispatcher.StreamingDispatcher;
 import fr.tse.fi2.hpp.labs.queries.AbstractQueryProcessor;
+import fr.tse.fi2.hpp.labs.queries.impl.debs.query2.NaiveImplement2;
 import fr.tse.fi2.hpp.labs.queries.impl.lab5b.RecordBloomMembershipProcessor;
 import fr.tse.fi2.hpp.labs.queries.impl.lab5b.RecordMembershipProcessor;
 import fr.tse.fi2.hpp.labs.queries.impl.lab5b.RecordMixMembershipProcessor;
@@ -45,12 +46,11 @@ public class BenchmarkMainStreaming {
 
     final static Logger logger = LoggerFactory.getLogger(BenchmarkMainStreaming.class);
 
-    private static RecordMembershipProcessor processor;
-    private static RecordBloomMembershipProcessor bprocessor;
-    private static RecordMixMembershipProcessor mprocessor;
-
-    protected static DebsRecord rndRecord;
-
+    private static NaiveImplement2 processor;
+    private static QueryProcessorMeasure measure = new QueryProcessorMeasure();
+    private static StreamingDispatcher dispatch = new StreamingDispatcher("src/main/resources/data/1000Records.csv");
+    private static List<AbstractQueryProcessor> processors = new ArrayList<>();
+    private static CountDownLatch latch;
     /**
      * @param args
      * @throws IOException
@@ -59,30 +59,38 @@ public class BenchmarkMainStreaming {
     @Setup
     public static void loadData() {
         // Init query time measure
-        final QueryProcessorMeasure measure = new QueryProcessorMeasure();
+        
         // Init dispatcher
-        final StreamingDispatcher dispatch = new StreamingDispatcher("src/main/resources/data/1000Records.csv");
+        
 
         // Query processors
-        final List<AbstractQueryProcessor> processors = new ArrayList<>();
+        
         // Add you query processor here
-        processor = new RecordMembershipProcessor(measure);
-        bprocessor = new RecordBloomMembershipProcessor(measure);
-        mprocessor = new RecordMixMembershipProcessor(measure);
+        processor = new NaiveImplement2(measure);
+        
         processors.add(processor);
-        processors.add(bprocessor);
-        processors.add(mprocessor);
         // Register query processors
         for (final AbstractQueryProcessor queryProcessor : processors) {
             dispatch.registerQueryProcessor(queryProcessor);
         }
         // Initialize the latch with the number of query processors
-        final CountDownLatch latch = new CountDownLatch(processors.size());
+       latch = new CountDownLatch(processors.size());
         // Set the latch for every processor
         for (final AbstractQueryProcessor queryProcessor : processors) {
             queryProcessor.setLatch(latch);
         }
-        // Start everything
+        
+
+       
+
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.AverageTime)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
+    public void run() {
+    	
+    	// Start everything
         for (final AbstractQueryProcessor queryProcessor : processors) {
             // queryProcessor.run();
             final Thread t = new Thread(queryProcessor);
@@ -102,29 +110,7 @@ public class BenchmarkMainStreaming {
         // Output measure and ratio per query processor
         measure.setProcessedRecords(dispatch.getRecords());
         measure.outputMeasure();
-
-        rndRecord = processor.getRandomRecord();
-
     }
 
-    @Benchmark
-    @BenchmarkMode(Mode.AverageTime)
-    @OutputTimeUnit(TimeUnit.MILLISECONDS)
-    public boolean search() {
-        return processor.exists(rndRecord);
-    }
-
-    @Benchmark
-    @BenchmarkMode(Mode.AverageTime)
-    @OutputTimeUnit(TimeUnit.MILLISECONDS)
-    public boolean searchBloom() {
-        return bprocessor.exists(rndRecord);
-    }
-
-    @Benchmark
-    @BenchmarkMode(Mode.AverageTime)
-    @OutputTimeUnit(TimeUnit.MILLISECONDS)
-    public boolean searchMix() {
-        return mprocessor.exists(rndRecord);
-    }
+   
 }
