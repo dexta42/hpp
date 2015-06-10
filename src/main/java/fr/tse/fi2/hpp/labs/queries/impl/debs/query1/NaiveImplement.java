@@ -204,7 +204,7 @@ public class NaiveImplement extends AbstractQueryProcessor {
 		}
 		list = list.substring(0, list.length()-2);
 		writeLine(list);
-		writeLine("Delay : " + (stop-start) + "\n");
+		writeLine("Delay : " + (stop-start) + " ms\n");
 		
 		
 		

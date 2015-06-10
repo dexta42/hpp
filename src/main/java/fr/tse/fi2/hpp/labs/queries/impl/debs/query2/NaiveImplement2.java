@@ -1,5 +1,7 @@
 package fr.tse.fi2.hpp.labs.queries.impl.debs.query2;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -63,7 +65,8 @@ public class NaiveImplement2 extends AbstractQueryProcessor {
 
 	@Override
 	protected void process(DebsRecord record) { 
-		
+		long start = System.currentTimeMillis();
+
 		currentTime.setTime(record.getDropoff_datetime());
 		
 		//Récupération des zone dans les 15 dernière minutes et calcul du nombre de trajet
@@ -165,13 +168,38 @@ public class NaiveImplement2 extends AbstractQueryProcessor {
 				tabArea.remove(Amax);
 		}
 		
-		System.out.println("Strart");
+		System.out.println("Start");
 		for(int i=0;i<sortedtabArea.size();i++){
 			System.out.println("cell : " + sortedtabArea.get(i).getCell().getX() + " " + sortedtabArea.get(i).getCell().getY() + " Total trip : " + sortedtabArea.get(i).getTotalTrip() +
 								" Taxi Empty : " + sortedtabArea.get(i).getTaxiEmpty() + " Median profit : " + sortedtabArea.get(i).getMedianProfit() + " Profitability : "  + sortedtabArea.get(i).getProfitability());
 		}
 		System.out.println("END");
+	
 		
+		long stop = System.currentTimeMillis();
+		
+		long pickup = currentTime.getTime() - (15*60*1000);
+		Date pickupTime = new Date();
+		pickupTime.setTime(pickup);
+		String list = "";
+		NumberFormat formatter = new DecimalFormat("00"); 
+		
+		// System.out.println("Size = " + sortedtabArea.size());
+		writeLine((pickupTime.getYear()+1900) + "-" + formatter.format((pickupTime.getMonth()+1)) + "-" + formatter.format(pickupTime.getDate()) + " " + formatter.format(pickupTime.getHours()) + ":" + formatter.format(pickupTime.getMinutes()) + ":" + formatter.format(pickupTime.getSeconds()) + " , " + (currentTime.getYear()+1900) + "-" + formatter.format((currentTime.getMonth()+1)) + "-" + formatter.format(currentTime.getDate()) + " " + formatter.format(currentTime.getHours()) + ":" + formatter.format(currentTime.getMinutes()) + ":" + formatter.format(currentTime.getSeconds()));
+		for(int i=0; i<10; i++)
+		{
+			if(i < sortedtabArea.size())
+			{
+				list = list.concat(String.valueOf(sortedtabArea.get(i).getCell().getX())).concat(" ").concat(String.valueOf(sortedtabArea.get(i).getCell().getY())).concat(" , ").concat(String.valueOf(sortedtabArea.get(i).getTaxiEmpty())).concat(" , ").concat(String.valueOf(sortedtabArea.get(i).getMedianProfit())).concat(" , ").concat(String.valueOf(sortedtabArea.get(i).getProfitability())).concat(" , ");
+			}
+			else
+			{
+				list = list.concat("NULL , ");
+			}
+		}
+		list = list.substring(0, list.length()-2);
+		writeLine(list);
+		writeLine("Delay : " + (stop-start) + " ms\n");
 	}
 
 }
