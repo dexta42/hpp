@@ -23,6 +23,7 @@ import fr.tse.fi2.hpp.labs.beans.DebsRecord;
 import fr.tse.fi2.hpp.labs.beans.measure.QueryProcessorMeasure;
 import fr.tse.fi2.hpp.labs.dispatcher.StreamingDispatcher;
 import fr.tse.fi2.hpp.labs.queries.AbstractQueryProcessor;
+import fr.tse.fi2.hpp.labs.queries.impl.debs.query1.NaiveImplement;
 import fr.tse.fi2.hpp.labs.queries.impl.debs.query2.NaiveImplement2;
 import fr.tse.fi2.hpp.labs.queries.impl.lab5b.RecordBloomMembershipProcessor;
 import fr.tse.fi2.hpp.labs.queries.impl.lab5b.RecordMembershipProcessor;
@@ -37,16 +38,16 @@ import fr.tse.fi2.hpp.labs.queries.impl.lab5b.RecordMixMembershipProcessor;
  * 
  */
 @State(Scope.Thread)
-@Fork(5)
+@Fork(1)
 @Warmup(iterations = 5)
 @Measurement(iterations = 5)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public class BenchmarkMainStreaming {
 
-    final static Logger logger = LoggerFactory.getLogger(BenchmarkMainStreaming.class);
+    //final static Logger logger = LoggerFactory.getLogger(BenchmarkMainStreaming.class);
 
-    private static NaiveImplement2 processor;
+    private static NaiveImplement processor;
     private static QueryProcessorMeasure measure = new QueryProcessorMeasure();
     private static StreamingDispatcher dispatch = new StreamingDispatcher("src/main/resources/data/1000Records.csv");
     private static List<AbstractQueryProcessor> processors = new ArrayList<>();
@@ -66,7 +67,7 @@ public class BenchmarkMainStreaming {
         // Query processors
         
         // Add you query processor here
-        processor = new NaiveImplement2(measure);
+        processor = new NaiveImplement(measure);
         
         processors.add(processor);
         // Register query processors
@@ -105,7 +106,7 @@ public class BenchmarkMainStreaming {
         try {
             latch.await();
         } catch (final InterruptedException e) {
-            logger.error("Error while waiting for the program to end", e);
+            //logger.error("Error while waiting for the program to end", e);
         }
         // Output measure and ratio per query processor
         measure.setProcessedRecords(dispatch.getRecords());
