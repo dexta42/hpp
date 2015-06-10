@@ -2,7 +2,7 @@ package fr.tse.fi2.hpp.labs.queries.impl.debs.query2;
 
 import fr.tse.fi2.hpp.labs.beans.GridPoint;
 
-public class Area {
+public class Area implements Comparable<Area>{
 	
 	private GridPoint cell;
 	
@@ -140,6 +140,19 @@ public class Area {
 		if (totalTrip != other.totalTrip)
 			return false;
 		return true;
+	}
+
+
+	@Override
+	public int compareTo(Area a) {
+		final int BEFORE = -1;
+	    final int EQUAL = 0;
+	    final int AFTER = 1;
+	    
+	    if (this == a) return EQUAL;
+	    if (this.getProfitability() < a.getProfitability()) return AFTER;
+	    if (this.getProfitability() > a.getProfitability()) return BEFORE;
+		return 0;
 	}
 	
 	

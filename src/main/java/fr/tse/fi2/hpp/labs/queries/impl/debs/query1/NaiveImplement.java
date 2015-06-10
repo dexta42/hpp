@@ -145,14 +145,13 @@ public class NaiveImplement extends AbstractQueryProcessor {
 			}
 			reverseRoutes.put(lastr, tabRoutes.get(lastr));
 			tabRoutes.remove(lastr);
-			System.out.println("Rwoute :  " + lastr.getPickup().getX()+" "+lastr.getPickup().getY()+" to "+lastr.getDropoff().getX()+" "+lastr.getDropoff().getY() + " nb : " + reverseRoutes.get(lastr));
+			
 			
 		}
 		
 		
 		Iterator<Route> keySetIterator2 = reverseRoutes.keySet().iterator();
 		LinkedHashMap <Route,Integer> sortedRoutes = new LinkedHashMap <Route,Integer>();
-		//Map<Route,Integer> sortedRoutes  = new TreeMap<Route,Integer>(Collections.reverseOrder());
 		while(!reverseRoutes.isEmpty()){
 			keySetIterator2 = reverseRoutes.keySet().iterator();
 			Route rmax = keySetIterator2.next();
@@ -163,7 +162,7 @@ public class NaiveImplement extends AbstractQueryProcessor {
 					rmax = key;
 				}
 			}
-			//System.out.println("Route :  " + rmax.getPickup().getX()+" "+rmax.getPickup().getY()+" to "+rmax.getDropoff().getX()+" "+rmax.getDropoff().getY() + " nb : " + tabRoutes.get(nb));
+			
 			sortedRoutes.put(rmax, reverseRoutes.get(rmax));
 			reverseRoutes.remove(rmax);
 		}
@@ -171,7 +170,7 @@ public class NaiveImplement extends AbstractQueryProcessor {
 		Iterator<Route> keySetIterator3 = sortedRoutes.keySet().iterator();
 		
 		
-		System.out.println("Start");
+		/*System.out.println("Start");
 		while(keySetIterator3.hasNext()){
 			
 			 Route key = keySetIterator3.next();
@@ -179,7 +178,7 @@ public class NaiveImplement extends AbstractQueryProcessor {
 		}
 		
 		System.out.println("END");
-		
+		*/
 		
 		long stop = System.currentTimeMillis();
 		

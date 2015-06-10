@@ -1,23 +1,21 @@
 package fr.tse.fi2.hpp.labs.queries.impl.debs.query2;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
-import java.util.LinkedHashMap;
 
 import fr.tse.fi2.hpp.labs.beans.DebsRecord;
 import fr.tse.fi2.hpp.labs.beans.GridPoint;
-import fr.tse.fi2.hpp.labs.beans.Route;
 import fr.tse.fi2.hpp.labs.beans.measure.QueryProcessorMeasure;
 import fr.tse.fi2.hpp.labs.queries.AbstractQueryProcessor;
 
-public class NaiveImplement2 extends AbstractQueryProcessor {
-	
+public class BetterImplement2 extends AbstractQueryProcessor{
 	private Date currentTime = new Date();
-	private ArrayList<DebsRecord> tabrecPU15 =  new ArrayList<DebsRecord>();
 	private ArrayList<DebsRecord> tabrecPU30 =  new ArrayList<DebsRecord>();
 	private ArrayList<DebsRecord> tabrecDO30 =  new ArrayList<DebsRecord>();
 
-	public NaiveImplement2(QueryProcessorMeasure measure) {
+	public BetterImplement2(QueryProcessorMeasure measure) {
 		super(measure);
 		// TODO Auto-generated constructor stub
 	}
@@ -65,30 +63,34 @@ public class NaiveImplement2 extends AbstractQueryProcessor {
 	protected void process(DebsRecord record) { 
 		
 		currentTime.setTime(record.getDropoff_datetime());
+		ArrayList<DebsRecord> tabrecPU152 =  new ArrayList<DebsRecord>();
 		
 		//Récupération des zone dans les 15 dernière minutes et calcul du nombre de trajet
 		ArrayList<Area> tabArea = new ArrayList<Area>();
 		
-		tabrecPU15.add(record);
-		for(int i=0;i<tabrecPU15.size();i++){
-			if ((currentTime.getTime() - tabrecPU15.get(i).getPickup_datetime()) >900000){
-				tabrecPU15.remove(i);
+		tabrecPU30.add(record);
+		for(int i=0;i<tabrecPU30.size();i++){
+			if ((currentTime.getTime() - tabrecPU30.get(i).getPickup_datetime()) >1800000){
+				tabrecPU30.remove(i);
 				
+			}
+			else if((currentTime.getTime() - tabrecPU30.get(i).getPickup_datetime()) <=900000){
+				tabrecPU152.add(tabrecPU30.get(i));
 			}
 		}
 		
 		
 		
-		for(int i=0;i<tabrecPU15.size();i++){
+		for(int i=0;i<tabrecPU152.size();i++){
 			Area a = new Area();
-			a.setCell(convert(tabrecPU15.get(i).getPickup_longitude() , tabrecPU15.get(i).getPickup_latitude()));
+			a.setCell(convert(tabrecPU152.get(i).getPickup_longitude() , tabrecPU152.get(i).getPickup_latitude()));
 			boolean find = false;
 			for(int j=0;j<tabArea.size();j++){
 				if(a.getCell().equals(tabArea.get(j).getCell())){
 					tabArea.get(j).setTotalTrip(tabArea.get(j).getTotalTrip()+1);
-					tabArea.get(j).setTotalFare(tabArea.get(j).getTotalFare()+tabrecPU15.get(i).getFare_amount());
-					tabArea.get(j).setTotalTip(tabArea.get(j).getTotalTip()+tabrecPU15.get(i).getTip_amount());
-					tabArea.get(j).CalculmedianProfit();
+					tabArea.get(j).setTotalFare(tabArea.get(j).getTotalFare()+tabrecPU152.get(i).getFare_amount());
+					tabArea.get(j).setTotalTip(tabArea.get(j).getTotalTip()+tabrecPU152.get(i).getTip_amount());
+					//tabArea.get(j).CalculmedianProfit();
 					tabArea.get(j).calculprofitability();
 					find = true;
 				}
@@ -96,9 +98,9 @@ public class NaiveImplement2 extends AbstractQueryProcessor {
 			if(!find){
 				a.setTotalTrip(1);
 				a.setTaxiEmpty(0);
-				a.setTotalFare(tabrecPU15.get(i).getFare_amount());
-				a.setTotalTip(tabrecPU15.get(i).getTip_amount());
-				a.CalculmedianProfit();
+				a.setTotalFare(tabrecPU152.get(i).getFare_amount());
+				a.setTotalTip(tabrecPU152.get(i).getTip_amount());
+				//a.CalculmedianProfit();
 				a.calculprofitability();
 				tabArea.add(a);
 			}
@@ -108,13 +110,7 @@ public class NaiveImplement2 extends AbstractQueryProcessor {
 		
 		
 		//Calcul du nombre de taxi vide
-		tabrecPU30.add(record);
-		for(int i=0;i<tabrecPU30.size();i++){
-			if ((currentTime.getTime() - tabrecPU30.get(i).getPickup_datetime()) >1800000){
-				tabrecPU30.remove(i);
-				
-			}
-		}
+	
 		
 		
 		for(int i=0;i<tabrecDO30.size();i++){
@@ -148,27 +144,24 @@ public class NaiveImplement2 extends AbstractQueryProcessor {
 		
 		
 		for(int i = 0;i<tabArea.size();i++){
+			tabArea.get(i).CalculmedianProfit();
 			tabArea.get(i).calculprofitability();
 		}
 		
-		ArrayList<Area> sortedtabArea = new ArrayList<Area>();
-		System.out.println(tabArea.size());
-		while(!tabArea.isEmpty()){
-			
-			Area Amax= tabArea.get(0);
-			for(int i=1;i<tabArea.size();i++){
-				if(tabArea.get(i).getProfitability()>Amax.getProfitability()){
-					Amax=tabArea.get(i);
-				}
-			}
-			sortedtabArea.add(Amax);
-				tabArea.remove(Amax);
-		}
+	
 		
-		System.out.println("Strart");
-		for(int i=0;i<sortedtabArea.size();i++){
-			System.out.println("cell : " + sortedtabArea.get(i).getCell().getX() + " " + sortedtabArea.get(i).getCell().getY() + " Total trip : " + sortedtabArea.get(i).getTotalTrip() +
-								" Taxi Empty : " + sortedtabArea.get(i).getTaxiEmpty() + " Median profit : " + sortedtabArea.get(i).getMedianProfit() + " Profitability : "  + sortedtabArea.get(i).getProfitability());
+		
+		Collections.sort(tabArea, new Comparator<Area>() {
+		    @Override
+		    public int compare(Area A1, Area A2) {
+		    	return A1.compareTo(A2);
+		    }
+		});
+		
+		System.out.println("Start");
+		for(int i=0;i<tabArea.size();i++){
+			System.out.println("cell : " + tabArea.get(i).getCell().getX() + " " + tabArea.get(i).getCell().getY() + " Total trip : " + tabArea.get(i).getTotalTrip() +
+								" Taxi Empty : " + tabArea.get(i).getTaxiEmpty() + " Median profit : " + tabArea.get(i).getMedianProfit() + " Profitability : "  + tabArea.get(i).getProfitability());
 		}
 		System.out.println("END");
 		
