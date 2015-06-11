@@ -1,3 +1,4 @@
+
 package fr.tse.fi2.hpp.labs.queries;
 
 import java.io.BufferedWriter;
@@ -18,7 +19,6 @@ import fr.tse.fi2.hpp.labs.beans.Route;
 import fr.tse.fi2.hpp.labs.beans.measure.QueryProcessorMeasure;
 import fr.tse.fi2.hpp.labs.dispatcher.StreamingDispatcher;
 import fr.tse.fi2.hpp.labs.queries.impl.lab2.Write;
-
 /**
  * Every query must extend this class that provides basic functionalities such
  * as :
@@ -34,7 +34,7 @@ import fr.tse.fi2.hpp.labs.queries.impl.lab2.Write;
  */
 public abstract class AbstractQueryProcessor implements Runnable {
 
-	private final static Logger logger = LoggerFactory
+	final static Logger logger = LoggerFactory
 			.getLogger(AbstractQueryProcessor.class);
 
 	/**
@@ -44,17 +44,16 @@ public abstract class AbstractQueryProcessor implements Runnable {
 	/**
 	 * Unique ID of the query processor
 	 */
-	protected final int id = COUNTER.incrementAndGet();
+	private final int id = COUNTER.incrementAndGet();
 	/**
 	 * Writer to write the output of the queries
 	 */
-	
+	private BufferedWriter outputWriter;
 	/**
 	 * Internal queue of events
 	 */
 	public final BlockingQueue<DebsRecord> eventqueue;
-	public final BlockingQueue<String> Resultqueue;
-	public final Thread thread;
+	public final BlockingQueue<String> listsum;
 	/**
 	 * Global measurement
 	 */
@@ -72,13 +71,17 @@ public abstract class AbstractQueryProcessor implements Runnable {
 		this.measure = measure;
 		// Initialize queue
 		this.eventqueue = new LinkedBlockingQueue<>();
-		this.Resultqueue = new LinkedBlockingQueue<>();
-		 Write write= new  Write(Resultqueue,  id);
-		 thread = new Thread(write);
-		 thread.start();
-
+		this.listsum = new LinkedBlockingQueue<>();
+		Write th1 = new Write(listsum,id);
+		new Thread (th1). start ();
 		// Initialize writer
-		
+		try {
+			outputWriter = new BufferedWriter(new FileWriter(new File(
+					"result/query" + id + ".txt")));
+		} catch (IOException e) {
+			logger.error("Cannot open output file for " + id, e);
+			System.exit(-1);
+		}
 	}
 
 	public void setLatch(CountDownLatch latch) {
@@ -94,7 +97,6 @@ public abstract class AbstractQueryProcessor implements Runnable {
 			try {
 				DebsRecord record = eventqueue.take();
 				if (record.isPoisonPill()) {
-					
 					break;
 				} else {
 					process(record);
@@ -194,38 +196,41 @@ public abstract class AbstractQueryProcessor implements Runnable {
 	 *            the line to write as an answer
 	 */
 	protected void writeLine(String line) {
-		/*try {
-			getOutputWriter().write(line);
-			getOutputWriter().newLine();
+		try {
+			outputWriter.write(line);
+			outputWriter.newLine();
 		} catch (IOException e) {
-			getLogger().error("Could not write new line for query processor " + id
+			logger.error("Could not write new line for query processor " + id
 					+ ", line content " + line, e);
-		}*/
-		Resultqueue.add(line);
-		
+		}
 
-	} 
+	}
 
 	/**
 	 * Poison pill has been received, close output
-	 * @throws InterruptedException 
 	 */
-	protected void finish()  {
-		// Close writer
-		writeLine("DIE!!!");
-		try {
-			this.thread.join();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//	protected void finish() {
+//		// Close writer
+//		try {
+//			outputWriter.flush();
+//			outputWriter.close();
+//		} catch (IOException e) {
+//			logger.error("Cannot property close the output file for query "
+//					+ id, e);
+//		}
+//		// Notify finish time
+//		measure.notifyFinish(this.id);
+//		// Decrease latch count
+//		latch.countDown();
+//		//WriteQuery.poison(-1.0f);
+//	}
+	
+	protected void finish() {
 		// Notify finish time
 		measure.notifyFinish(this.id);
 		// Decrease latch count
 		latch.countDown();
+		listsum.add("FINISHED");
 	}
-
-	
-
 
 }

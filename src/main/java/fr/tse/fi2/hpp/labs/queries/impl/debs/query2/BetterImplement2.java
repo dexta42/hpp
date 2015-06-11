@@ -13,6 +13,9 @@ import fr.tse.fi2.hpp.labs.beans.measure.QueryProcessorMeasure;
 import fr.tse.fi2.hpp.labs.queries.AbstractQueryProcessor;
 
 public class BetterImplement2 extends AbstractQueryProcessor{
+	
+	//Solution amélioré de la query 2
+	
 	private Date currentTime = new Date();
 	private ArrayList<DebsRecord> tabrecPU30 =  new ArrayList<DebsRecord>();
 	private ArrayList<DebsRecord> tabrecDO30 =  new ArrayList<DebsRecord>();
@@ -67,17 +70,19 @@ public class BetterImplement2 extends AbstractQueryProcessor{
 		long start = System.currentTimeMillis();
 
 		currentTime.setTime(record.getDropoff_datetime());
+		//cette fois le tableau de pickup de 15 min est instancier dans la méthode et plus en global pour optimiser la mémoire
 		ArrayList<DebsRecord> tabrecPU152 =  new ArrayList<DebsRecord>();
 		
-		//Récupération des zone dans les 15 dernière minutes et calcul du nombre de trajet
 		ArrayList<Area> tabArea = new ArrayList<Area>();
 		
+		//On récupère tout les records dont les heures de pickup de moins de 30min 
 		tabrecPU30.add(record);
 		for(int i=0;i<tabrecPU30.size();i++){
 			if ((currentTime.getTime() - tabrecPU30.get(i).getPickup_datetime()) >1800000){
 				tabrecPU30.remove(i);
 				
 			}
+			//si le Pickup est également moins de 15mins 
 			else if((currentTime.getTime() - tabrecPU30.get(i).getPickup_datetime()) <=900000){
 				tabrecPU152.add(tabrecPU30.get(i));
 			}
@@ -154,7 +159,7 @@ public class BetterImplement2 extends AbstractQueryProcessor{
 		
 	
 		
-		
+		//On utilise la methode Collections.sort pour classer les Area
 		Collections.sort(tabArea, new Comparator<Area>() {
 		    @Override
 		    public int compare(Area A1, Area A2) {
@@ -162,12 +167,7 @@ public class BetterImplement2 extends AbstractQueryProcessor{
 		    }
 		});
 		
-		System.out.println("Start");
-		for(int i=0;i<tabArea.size();i++){
-			System.out.println("cell : " + tabArea.get(i).getCell().getX() + " " + tabArea.get(i).getCell().getY() + " Total trip : " + tabArea.get(i).getTotalTrip() +
-								" Taxi Empty : " + tabArea.get(i).getTaxiEmpty() + " Median profit : " + tabArea.get(i).getMedianProfit() + " Profitability : "  + tabArea.get(i).getProfitability());
-		}
-		System.out.println("END");
+		
 	
 		
 		long stop = System.currentTimeMillis();
@@ -178,7 +178,7 @@ public class BetterImplement2 extends AbstractQueryProcessor{
 		String list = "";
 		NumberFormat formatter = new DecimalFormat("00"); 
 		
-		// System.out.println("Size = " + tabArea.size());
+		
 		writeLine((pickupTime.getYear()+1900) + "-" + formatter.format((pickupTime.getMonth()+1)) + "-" + formatter.format(pickupTime.getDate()) + " " + formatter.format(pickupTime.getHours()) + ":" + formatter.format(pickupTime.getMinutes()) + ":" + formatter.format(pickupTime.getSeconds()) + " , " + (currentTime.getYear()+1900) + "-" + formatter.format((currentTime.getMonth()+1)) + "-" + formatter.format(currentTime.getDate()) + " " + formatter.format(currentTime.getHours()) + ":" + formatter.format(currentTime.getMinutes()) + ":" + formatter.format(currentTime.getSeconds()));
 		for(int i=0; i<10; i++)
 		{

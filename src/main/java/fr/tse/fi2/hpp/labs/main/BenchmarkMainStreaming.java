@@ -24,6 +24,7 @@ import fr.tse.fi2.hpp.labs.beans.measure.QueryProcessorMeasure;
 import fr.tse.fi2.hpp.labs.dispatcher.StreamingDispatcher;
 import fr.tse.fi2.hpp.labs.queries.AbstractQueryProcessor;
 import fr.tse.fi2.hpp.labs.queries.impl.debs.query1.NaiveImplement;
+import fr.tse.fi2.hpp.labs.queries.impl.debs.query2.BetterImplement2;
 import fr.tse.fi2.hpp.labs.queries.impl.debs.query2.NaiveImplement2;
 import fr.tse.fi2.hpp.labs.queries.impl.lab5b.RecordBloomMembershipProcessor;
 import fr.tse.fi2.hpp.labs.queries.impl.lab5b.RecordMembershipProcessor;
@@ -45,72 +46,61 @@ import fr.tse.fi2.hpp.labs.queries.impl.lab5b.RecordMixMembershipProcessor;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public class BenchmarkMainStreaming {
 
-    //final static Logger logger = LoggerFactory.getLogger(BenchmarkMainStreaming.class);
+   final static Logger logger = LoggerFactory.getLogger(BenchmarkMainStreaming.class);
 
-    private static NaiveImplement processor;
-    private static QueryProcessorMeasure measure = new QueryProcessorMeasure();
-    private static StreamingDispatcher dispatch = new StreamingDispatcher("src/main/resources/data/1000Records.csv");
-    private static List<AbstractQueryProcessor> processors = new ArrayList<>();
-    private static CountDownLatch latch;
     /**
      * @param args
      * @throws IOException
      */
 
-    @Setup
-    public static void loadData() {
-        // Init query time measure
-        
-        // Init dispatcher
-        
-
-        // Query processors
-        
-        // Add you query processor here
-        processor = new NaiveImplement(measure);
-        
-        processors.add(processor);
-        // Register query processors
-        for (final AbstractQueryProcessor queryProcessor : processors) {
-            dispatch.registerQueryProcessor(queryProcessor);
-        }
-        // Initialize the latch with the number of query processors
-       latch = new CountDownLatch(processors.size());
-        // Set the latch for every processor
-        for (final AbstractQueryProcessor queryProcessor : processors) {
-            queryProcessor.setLatch(latch);
-        }
-        
-
-       
-
-    }
+   
 
     @Benchmark
     @BenchmarkMode(Mode.AverageTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     public void run() {
-    	
-    	// Start everything
-        for (final AbstractQueryProcessor queryProcessor : processors) {
-            // queryProcessor.run();
-            final Thread t = new Thread(queryProcessor);
-            t.setName("QP" + queryProcessor.getId());
-            t.start();
-        }
-        final Thread t1 = new Thread(dispatch);
-        t1.setName("Dispatcher");
-        t1.start();
+    	// Init query time measure
+		QueryProcessorMeasure measure = new QueryProcessorMeasure();
+		// Init dispatcher
+		StreamingDispatcher dispatch = new StreamingDispatcher(
+				"src/main/resources/data/1000Records.csv");
 
-        // Wait for the latch
-        try {
-            latch.await();
-        } catch (final InterruptedException e) {
-            //logger.error("Error while waiting for the program to end", e);
-        }
-        // Output measure and ratio per query processor
-        measure.setProcessedRecords(dispatch.getRecords());
-        measure.outputMeasure();
+		// Query processors
+		List<AbstractQueryProcessor> processors = new ArrayList<>();
+		// Add you query processor here
+		BetterImplement2 RMP = new  BetterImplement2(measure);
+		
+		processors.add(RMP);
+		// Register query processors
+		for (AbstractQueryProcessor queryProcessor : processors) {
+			dispatch.registerQueryProcessor(queryProcessor);
+		}
+		// Initialize the latch with the number of query processors
+		CountDownLatch latch = new CountDownLatch(processors.size());
+		// Set the latch for every processor
+		for (AbstractQueryProcessor queryProcessor : processors) {
+			queryProcessor.setLatch(latch);
+		}
+		// Start everything
+		for (AbstractQueryProcessor queryProcessor : processors) {
+			// queryProcessor.run();
+			Thread t = new Thread(queryProcessor);
+			t.setName("QP" + queryProcessor.getId());
+			t.start();
+		}
+		Thread t1 = new Thread(dispatch);
+		t1.setName("Dispatcher");
+		t1.start();
+
+		// Wait for the latch
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			logger.error("Error while waiting for the program to end", e);
+		}
+		// Output measure and ratio per query processor
+		measure.setProcessedRecords(dispatch.getRecords());
+		measure.outputMeasure();
     }
 
    

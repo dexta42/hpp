@@ -20,6 +20,8 @@ import fr.tse.fi2.hpp.labs.queries.AbstractQueryProcessor;
 
 public class NaiveImplement extends AbstractQueryProcessor {
 	
+	//solution de la query 1
+	
 	public static String lastLine;
 	private int nb = 0;
 	private float sum = 0;
@@ -83,39 +85,44 @@ public class NaiveImplement extends AbstractQueryProcessor {
 	
 	
 	
-	@SuppressWarnings("unchecked")
+	
 	@Override
 	protected void process(DebsRecord record) {
+		
 		long start = System.currentTimeMillis();
+		//On récupère l'heure de dropoff du derniers record qui sera l'heure actuelle
 		currentTime.setTime(record.getDropoff_datetime());
+		
+		
 		LinkedHashMap<Route,Integer> tabRoutes = new LinkedHashMap<Route,Integer>();
 		
+		//On parcours le tableau de dropoff de moins de 30min
 		for(int i=0;i<tabrec.size();i++){
 			if ((currentTime.getTime() - tabrec.get(i).getDropoff_datetime()) >1800000){
 				tabrec.remove(i);
 				
 			}
 		}
-		
 		tabrec.add(record);
 		
+		//On remplit le tableau de Route de moins de 30min
 		for(int i=0;i<tabrec.size();i++){
 			Route r = convertRecordToRoute( tabrec.get(i));
 			
 			Iterator<Route> keySetIterator = tabRoutes.keySet().iterator();
 			boolean find = false;
-			
+			//Pour chaque record on parcour le tableau de Routes
 			while(keySetIterator.hasNext()){
 				  Route key = keySetIterator.next();
-				  //System.out.println("r :  " + r.getPickup().getX()+" "+r.getPickup().getY()+" to "+r.getDropoff().getX()+" "+r.getDropoff().getY());
-				  //System.out.println("key :  " + key.getPickup().getX()+" "+key.getPickup().getY()+" to "+key.getDropoff().getX()+" "+key.getDropoff().getY() );
+				  //si la route est déjà présente, on incrémente le nombre de route (qui correspond à la value de la Hasmpa
 				  if(r.equals(key)){
 					  Integer nb=tabRoutes.get(key);
-					  tabRoutes.replace(key, nb, nb+1);
+					  tabRoutes.put(key,nb+1);
 					  find = true;
 				  }
 				}
 			
+			//Si on a pas trouvé de route correspondant on ajoute la nouvelle Route au tableau
 			if(!find){
 				tabRoutes.put(r, 1);
 			}
@@ -123,19 +130,7 @@ public class NaiveImplement extends AbstractQueryProcessor {
 		
 		}
 		
-		 
-		/*TreeMap<Route,Integer> sortedtabRoutes = new TreeMap<Route,Integer>(tabRoutes);
-		Iterator<Route> it2 = sortedtabRoutes.keySet().iterator();
-		System.out.println("Start");
-		
-		
-		while(it2.hasNext()){
-			 Route key = it2.next();
-			System.out.println("Route :  " + key.getPickup().getX()+" "+key.getPickup().getY()+" to "+key.getDropoff().getX()+" "+key.getDropoff().getY() + " nb : " + tabRoutes.get(key));
-		}
-		
-		System.out.println("END");
-	*/  
+		//On reclasse le tableau de Route du plus recent au plus ancien
 		LinkedHashMap <Route,Integer> reverseRoutes = new LinkedHashMap <Route,Integer>();
 		Iterator<Route> keySetIterator = tabRoutes.keySet().iterator();
 		while(!tabRoutes.isEmpty()){
@@ -149,11 +144,10 @@ public class NaiveImplement extends AbstractQueryProcessor {
 			}
 			reverseRoutes.put(lastr, tabRoutes.get(lastr));
 			tabRoutes.remove(lastr);
-			
-			
 		}
 		
 		
+		//On classe le tableau de Route par le nombre de trajet effectué
 		Iterator<Route> keySetIterator2 = reverseRoutes.keySet().iterator();
 		LinkedHashMap <Route,Integer> sortedRoutes = new LinkedHashMap <Route,Integer>();
 		while(!reverseRoutes.isEmpty()){
@@ -174,16 +168,7 @@ public class NaiveImplement extends AbstractQueryProcessor {
 		Iterator<Route> keySetIterator3 = sortedRoutes.keySet().iterator();
 		
 		
-		/*System.out.println("Start");
-		while(keySetIterator3.hasNext()){
-			
-			 Route key = keySetIterator3.next();
-			System.out.println("Route :  " + key.getPickup().getX()+" "+key.getPickup().getY()+" to "+key.getDropoff().getX()+" "+key.getDropoff().getY() + " nb : " + sortedRoutes.get(key));
-		}
-		
-		System.out.println("END");
-		*/
-		
+		//Mise en forme du résultat de la query
 		long stop = System.currentTimeMillis();
 		
 		long pickup = currentTime.getTime() - (30*60*1000);
@@ -210,8 +195,6 @@ public class NaiveImplement extends AbstractQueryProcessor {
 		writeLine(list);
 		writeLine("Delay : " + (stop-start) + " ms\n");
 		
-		//list = list.replace(" ", "");
-		//lastLine = (pickupTime.getYear()+1900) + "-" + formatter.format((pickupTime.getMonth()+1)) + "-" + formatter.format(pickupTime.getDate()) + " " + formatter.format(pickupTime.getHours()) + ":" + formatter.format(pickupTime.getMinutes()) + ":" + formatter.format(pickupTime.getSeconds()) + "," + (currentTime.getYear()+1900) + "-" + formatter.format((currentTime.getMonth()+1)) + "-" + formatter.format(currentTime.getDate()) + " " + formatter.format(currentTime.getHours()) + ":" + formatter.format(currentTime.getMinutes()) + ":" + formatter.format(currentTime.getSeconds()) + list;
 		lastLine = list.replace(" ", "");
 		
 	
